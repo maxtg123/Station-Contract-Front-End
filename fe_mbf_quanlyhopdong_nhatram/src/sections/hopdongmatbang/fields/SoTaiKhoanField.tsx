@@ -1,0 +1,15 @@
+import { Box, Typography } from '@mui/material';
+import { RHFTextField } from 'src/components/hook-form';
+
+const SoTaiKhoanField = () => {
+  return (
+    <Box sx={{ width: '100%' }}>
+      <Typography variant="overline" component="p" gutterBottom sx={{ textTransform: 'none' }}>
+        Số tài khoản <span style={{ color: '#FF0000' }}>(*)</span>
+      </Typography>
+      <RHFTextField name="soTaiKhoan" fullWidth hiddenLabel />
+    </Box>
+  );
+};
+
+export default SoTaiKhoanField;

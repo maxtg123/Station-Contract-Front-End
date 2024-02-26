@@ -1,0 +1,67 @@
+export const API_ENDPOINTS = {
+  LOGIN: 'authentication',
+  DANH_MUC: {
+    LOAI_CSHT: 'danh-muc/loai-csht',
+    LOAI_HANG_MUC_CSHT: 'danh-muc/loai-hang-muc-csht',
+    PHONG_DAI: 'danh-muc/phong-dai',
+    HINH_THUC_DAU_TU: 'danh-muc/hinh-thuc-dau-tu',
+    DOI_TUONG_KY_HOP_DONG: 'danh-muc/doi-tuong-ky-hop-dong',
+    LOAI_COT_ANTEN: 'danh-muc/loai-cot-angten',
+    TO: 'danh-muc/to',
+    TINH: 'danh-muc/tinh',
+    HUYEN: 'danh-muc/huyen',
+    XA: 'danh-muc/xa',
+    TRAM_KHU_VUC: 'danh-muc/tram-khu-vuc',
+    LOAI_TRAM: 'danh-muc/loai-tram',
+    LOAI_THIET_BI_RAN: 'danh-muc/loai-thiet-bi-ran',
+    THUE: 'danh-muc/thue',
+    LOAI_PHONG_MAY: 'danh-muc/loai-phong-may',
+    HOP_DONG_PHU_TRO: 'danh-muc/loai-hop-dong-phu-tro',
+    HINH_THUC_KY_HD: 'danh-muc/hinh-thuc-ky-hop-dong',
+    HINH_THUC_THANH_TOAN: 'danh-muc/hinh-thuc-thanh-toan',
+    HINH_THUC_KY_HOP_DONG: 'danh-muc/hinh-thuc-ky-hop-dong',
+    LOAI_PHONG_MAY_PHAT_DIEN: 'danh-muc/loai-phong-may-phat-dien',
+    LOAI_TRAM_VHKT: 'danh-muc/loai-tram-vhkt',
+    DON_VI_DUNG_CHUNG: 'danh-muc/dung-chung',
+    KHOAN_MUC: 'danh-muc/khoan-muc',
+  },
+  CHUC_VU: 'chuc-vu',
+  NGUOI_DUNG: 'nguoi-dung',
+  HOP_DONG: 'hop-dong',
+  HOP_DONG_OLD_FILES: 'hop-dong/old-files',
+  THANH_TOAN_HOP_DONG: 'hop-dong/thanh-toan',
+  THONG_KE_HOP_DONG_THANH_TOAN: 'hop-dong/stats',
+  HOP_DONG_LICH_SU: 'hop-dong/lich-su',
+  SYS: {
+    MODULE: 'sys/module',
+    ACTION: 'sys/action-on-module',
+  },
+  TRAM: 'tram',
+  THONG_KE_TRAM: 'tram/stats',
+  TIEN_TRINH: 'process',
+  PHE_DUYET_HOP_DONG: {
+    PHE_DUYET: 'hop-dong-phe-duyet',
+    XET_DUYET: 'hop-dong-phe-duyet/xet-duyet',
+  },
+  DAM_PHAN: {
+    index: 'hop-dong-dam-phan',
+    GIAO_VIEC: 'hop-dong-dam-phan',
+    XET_DUYET: 'xet-duyet',
+  },
+  THONG_BAO: 'thong-bao',
+  ACTIVITY_LOG: 'logs',
+};
+
+export const API_ENDPOINTS_NEXT = {
+  HOP_DONG: {
+    SEND_MAIL_PHE_DUYET: 'hop-dong/gui-phe-duyet-email',
+    SEND_MAIL_GIAO_VIEC: 'hop-dong/giao-viec-email',
+  },
+  TRAM: {
+    SYNC_FROM_PTM: 'tram/from-ptm',
+  },
+  HOP_DONG_CHUONG_TRINH_CU: {
+    GET_PHU_LUC_HOP_DONG_CHUONG_TRINH_CU: 'old-hop-dong/sync-phu-luc',
+    GET_HOP_DONG_THU_HUONG_CHUONG_TRINH_CU: 'old-hop-dong/sync-thu-huong',
+  },
+};

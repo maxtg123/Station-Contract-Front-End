@@ -1,0 +1,293 @@
+import {
+  Card,
+  Container,
+  IconButton,
+  MenuItem,
+  Table,
+  TableBody,
+  TableContainer,
+  Tooltip,
+} from '@mui/material';
+import equal from 'fast-deep-equal';
+import isNil from 'lodash/isNil';
+import Head from 'next/head';
+import { useEffect, useMemo, useState } from 'react';
+import { IDmHinhThucKyHopDong, IDmLoaiCsht } from 'src/@types/category';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/CustomBreadcrumbs';
+import Iconify from 'src/components/iconify/Iconify';
+import MenuPopover from 'src/components/menu-popover/MenuPopover';
+import Scrollbar from 'src/components/scrollbar/Scrollbar';
+import { useSettingsContext } from 'src/components/settings';
+import {
+  TableHeadCustom,
+  TableNoData,
+  TablePaginationCustom,
+  TableSelectedAction,
+  TableSkeleton,
+  getComparator,
+  useTable,
+} from 'src/components/table';
+import { useDmHinhThucKyHopDongsQuery } from 'src/data/dmHinhThucKyHopDong';
+import useAuthCredentials from 'src/hooks/useAuthCredentials';
+import DashboardLayout from 'src/layouts/dashboard/DashboardLayout';
+import { PATH_CATEGORY } from 'src/routes/paths';
+import AddNewButtonDanhMuc from 'src/sections/category/components/add-new-button';
+import HinhThucKyHopDongCreate from 'src/sections/category/hinh-thuc-ky-hop-dong/HinhThucKyHopDongCreate';
+import HinhThucKyHopDongTableRow from 'src/sections/category/hinh-thuc-ky-hop-dong/HinhThucKyHopDongTableRow';
+import HinhThucKyHopDongTableToolbar from 'src/sections/category/hinh-thuc-ky-hop-dong/HinhThucKyHopDongTableToolbar';
+
+const WIDTH_MENU_POPOVER = 177;
+const TABLE_HEAD = [
+  { id: 'ten', label: 'Tên', align: 'left' },
+  { id: 'ma', label: 'Mã', align: 'left' },
+  { id: 'ghiChu', label: 'Ghi chú', align: 'left' },
+  { id: 'createdAt', label: 'Ngày tạo', align: 'center', width: 200 },
+  // { id: 'trangthai', label: 'Trạng thái', align: 'left' },
+];
+
+// ----------------------------------------------------------------------
+
+HinhThucKyHopDongPage.getLayout = (page: React.ReactElement) => (
+  <DashboardLayout>{page}</DashboardLayout>
+);
+
+// ----------------------------------------------------------------------
+
+export default function HinhThucKyHopDongPage() {
+  const { listPhanQuyenChinh } = useAuthCredentials();
+
+  const {
+    dense,
+    page,
+    order,
+    orderBy,
+    rowsPerPage,
+    setPage,
+    //
+    selected,
+    onSelectAllRows,
+    //
+    onSort,
+    onChangePage,
+    onChangeRowsPerPage,
+  } = useTable();
+
+  const { data, isLoading, isError, isFetching } = useDmHinhThucKyHopDongsQuery({
+    refetchOnWindowFocus: false,
+  });
+
+  const { themeStretch } = useSettingsContext();
+  const [openPopover, setOpenPopover] = useState<HTMLElement | null>(null);
+  const [tableData, setTableData] = useState<IDmHinhThucKyHopDong[]>([]);
+  const [dataRow, setDataRow] = useState<IDmHinhThucKyHopDong | null>(null);
+  const [filterName, setFilterName] = useState('');
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('');
+
+  useEffect(() => {
+    if (!isLoading && !isError && !isNil(data) && !equal(data, tableData)) {
+      setTableData(data.elements);
+    }
+  }, [isLoading, isError, data, tableData]);
+
+  const dataFiltered = useMemo(
+    () =>
+      applyFilter({
+        inputData: tableData,
+        comparator: getComparator(order, orderBy),
+        filterName,
+      }).map((row, index) => ({
+        ...row,
+        no: index + 1,
+      })),
+    [tableData, order, orderBy, filterName]
+  );
+  const isFiltered = filterName !== '' || filterStatus !== '';
+  const isNotFound =
+    (!dataFiltered.length && !filterName) || (!dataFiltered.length && !filterStatus);
+  const handleClickOpenCreate = () => {
+    setOpenCreate(true);
+  };
+
+  const handleCloseCreate = () => {
+    setDataRow(null);
+    setOpenCreate(false);
+  };
+
+  const handleOpenPopover = (event: React.MouseEvent<HTMLElement>) => {
+    setOpenPopover(event.currentTarget);
+  };
+
+  const handleClosePopover = () => {
+    setOpenPopover(null);
+  };
+
+  const handleFilterName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPage(0);
+    setFilterName(event.target.value);
+  };
+
+  const handleResetFilter = () => {
+    setFilterName('');
+    setFilterStatus('');
+  };
+  const handleOpenConfirm = () => {
+    setOpenConfirm(true);
+  };
+  const handleEditRow = (row: IDmLoaiCsht) => {
+    setDataRow(row);
+    setOpenCreate(true);
+  };
+  return (
+    <>
+      <Head>
+        <title>Danh mục | Hình thức ký hợp đồng</title>
+      </Head>
+      <Container maxWidth={themeStretch ? false : 'xl'}>
+        <CustomBreadcrumbs
+          heading="Hình thức ký hợp đồng"
+          links={[
+            { name: 'Danh mục', href: PATH_CATEGORY.root },
+            { name: 'Hình thức ký hợp đồng' },
+          ]}
+          action={<AddNewButtonDanhMuc onOpenPopover={handleOpenPopover} />}
+        />
+        <Card>
+          <HinhThucKyHopDongTableToolbar
+            isFiltered={isFiltered}
+            filterName={filterName}
+            onFilterName={handleFilterName}
+            onResetFilter={handleResetFilter}
+          />
+          {!isFetching ? (
+            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+              <TableSelectedAction
+                dense={dense}
+                numSelected={selected.length}
+                rowCount={tableData.length}
+                onSelectAllRows={(checked) =>
+                  onSelectAllRows(
+                    checked,
+                    tableData.map((row: any) => row.id)
+                  )
+                }
+                action={
+                  <Tooltip title="Delete">
+                    <IconButton color="primary" onClick={handleOpenConfirm}>
+                      <Iconify icon="eva:trash-2-outline" />
+                    </IconButton>
+                  </Tooltip>
+                }
+              />
+              <Scrollbar>
+                <Table size={dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD}
+                    onSort={onSort}
+                  />
+                  <TableBody>
+                    {dataFiltered
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row, index) => (
+                        <HinhThucKyHopDongTableRow
+                          no={row.no}
+                          key={row.id}
+                          row={row}
+                          selected={selected.includes(row.id.toString())}
+                          onEditRow={() => handleEditRow(row)}
+                        />
+                      ))}
+                    <TableNoData
+                      title={
+                        !isFiltered
+                          ? 'Dữ liệu hình thức ký hợp đồng đang trống'
+                          : 'Không tìm thấy dữ liệu được tìm kiếm'
+                      }
+                      isNotFound={isNotFound}
+                      haveBtnCreate={
+                        !!listPhanQuyenChinh.find(
+                          (q) => q.module === 'DANH_MUC' && q.action === 'THEM_MOI'
+                        )
+                      }
+                      handleOpenCreate={handleClickOpenCreate}
+                    />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </TableContainer>
+          ) : (
+            <TableSkeleton countRow={rowsPerPage} />
+          )}
+
+          <TablePaginationCustom
+            count={dataFiltered.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={onChangePage}
+            onRowsPerPageChange={onChangeRowsPerPage}
+          />
+        </Card>
+      </Container>
+      <MenuPopover
+        open={openPopover}
+        onClose={handleClosePopover}
+        arrow="top-right"
+        sx={{ width: WIDTH_MENU_POPOVER, marginTop: '10px' }}
+      >
+        <MenuItem
+          onClick={() => {
+            handleClickOpenCreate();
+            handleClosePopover();
+          }}
+        >
+          <Iconify icon="eva:plus-fill" />
+          Thêm mới
+        </MenuItem>
+      </MenuPopover>
+      {openCreate && (
+        <HinhThucKyHopDongCreate
+          title={dataRow ? 'Cập nhật Hình thức ký hợp đồng' : 'Thêm mới Hình thức ký hợp đồng'}
+          open={openCreate}
+          initData={dataRow}
+          onClose={() => handleCloseCreate()}
+        />
+      )}
+    </>
+  );
+}
+function applyFilter({
+  inputData,
+  comparator,
+  filterName,
+}: {
+  inputData: IDmLoaiCsht[];
+  comparator: (a: any, b: any) => number;
+  filterName: string;
+}) {
+  if (!inputData.length) return [];
+
+  if (filterName) {
+    const filterNameTrimSpace = filterName.trimStart().trimEnd();
+    inputData = inputData.filter((user) => {
+      let tenFilter = false;
+      if (!isNil(user?.ten)) {
+        tenFilter = user.ten.toLowerCase().indexOf(filterNameTrimSpace.toLowerCase()) !== -1;
+      }
+      let maFilter = false;
+      if (!isNil(user?.ma)) {
+        maFilter = user.ma.toLowerCase().indexOf(filterNameTrimSpace.toLowerCase()) !== -1;
+      }
+      let ghiChuFilter = false;
+      if (!isNil(user?.ghiChu)) {
+        ghiChuFilter = user.ghiChu.toLowerCase().indexOf(filterNameTrimSpace.toLowerCase()) !== -1;
+      }
+
+      return tenFilter || maFilter || ghiChuFilter;
+    });
+  }
+
+  return inputData;
+}
